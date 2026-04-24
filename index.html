@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sourdough Bulk Fermentation Timer</title>
 
-<!-- Fonts via jsDelivr — works on GitHub Pages, no Google Fonts needed -->
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/700.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400-italic.css">
@@ -43,7 +41,6 @@ body {
   padding: 40px 20px 60px;
 }
 
-/* Header */
 header {
   text-align: center;
   margin-bottom: 48px;
@@ -70,7 +67,6 @@ h1 {
 h1 em { font-style: italic; color: var(--crust); }
 .subtitle { font-size: 12px; color: var(--text-light); letter-spacing: 0.05em; line-height: 1.5; }
 
-/* Card */
 .card {
   background: var(--warm-white);
   border: 1px solid var(--mellow);
@@ -82,7 +78,6 @@ h1 em { font-style: italic; color: var(--crust); }
   animation: fadeUp 0.8s ease 0.2s both;
 }
 
-/* Fields */
 .field-group { margin-bottom: 28px; }
 label {
   display: block;
@@ -94,7 +89,6 @@ label {
   margin-bottom: 10px;
 }
 
-/* Custom time picker */
 .time-picker {
   display: flex;
   align-items: stretch;
@@ -140,7 +134,6 @@ label {
   margin-left: auto;
 }
 
-/* Temp input */
 .input-row { display: flex; gap: 12px; align-items: stretch; }
 input[type="number"] {
   flex: 1;
@@ -184,7 +177,6 @@ input[type="number"]:focus {
 .unit-btn:last-child { border-right: none; }
 .unit-btn.active { background: var(--crust); color: var(--cream); }
 
-/* Temp gauge */
 .temp-display { margin-top: 14px; }
 .temp-track {
   height: 8px;
@@ -207,7 +199,6 @@ input[type="number"]:focus {
 .temp-labels { display: flex; justify-content: space-between; margin-top: 7px; }
 .temp-label-item { font-size: 9px; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; }
 
-/* Calc button */
 .calc-btn {
   width: 100%;
   padding: 17px;
@@ -227,10 +218,8 @@ input[type="number"]:focus {
 .calc-btn:hover { background: var(--crust); }
 .calc-btn:active { transform: scale(0.99); }
 
-/* Divider */
 .divider { height: 1px; background: var(--mellow); margin: 28px 0; }
 
-/* Results */
 .result { display: none; }
 .result.visible {
   display: block;
@@ -262,6 +251,107 @@ input[type="number"]:focus {
 .warning-box.visible { display: block; }
 .warning-box strong { color: var(--dark-crust); }
 
+/* ── Stretch & Fold section ── */
+.sf-section { margin-top: 24px; }
+.sf-title {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sf-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mellow);
+}
+.sf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sf-card {
+  background: var(--cream);
+  border: 1px solid var(--mellow);
+  border-radius: 2px;
+  padding: 14px 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.2s;
+}
+.sf-card.done {
+  border-color: var(--accent);
+  opacity: 0.55;
+}
+.sf-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sourdough);
+  color: var(--warm-white);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.sf-card.done .sf-num { background: var(--accent); }
+.sf-info { flex: 1; min-width: 0; }
+.sf-time {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--dark-crust);
+  line-height: 1.1;
+}
+.sf-card.done .sf-time { color: var(--accent); }
+.sf-sub {
+  font-size: 9px;
+  color: var(--text-light);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.sf-check {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--wheat);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+  font-size: 12px;
+  color: transparent;
+  background: var(--warm-white);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sf-card.done .sf-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--warm-white);
+}
+.sf-note {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-top: 12px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: rgba(92,138,74,0.06);
+  border-left: 2px solid var(--accent);
+  border-radius: 1px;
+}
+
 footer { margin-top: 32px; font-size: 10px; color: var(--text-light); text-align: center; letter-spacing: 0.07em; line-height: 1.7; opacity: 0.75; animation: fadeUp 0.8s ease 0.4s both; }
 footer a { color: var(--sourdough); text-decoration: none; }
 
@@ -272,6 +362,7 @@ footer a { color: var(--sourdough); text-decoration: none; }
 @media (max-width: 480px) {
   .card { padding: 28px 20px; }
   .result-grid { grid-template-columns: 1fr; }
+  .sf-grid { grid-template-columns: 1fr; }
   h1 { font-size: 2rem; }
 }
 </style>
@@ -364,6 +455,21 @@ footer a { color: var(--sourdough); text-decoration: none; }
       <div class="fm-track"><div class="fm-fill" id="fmFill"></div></div>
     </div>
     <div class="warning-box" id="warningBox"></div>
+
+```
+<!-- ── Stretch & Fold section ── -->
+<div class="sf-section">
+  <div class="sf-title">Stretch &amp; Fold Schedule</div>
+  <div class="sf-grid" id="sfGrid">
+    <!-- populated by JS -->
+  </div>
+  <div class="sf-note">
+    Perform 4 sets of stretch &amp; folds, every 30 minutes starting 30 min after bulk begins.
+    Wet hands, grab one side of the dough, stretch up and fold over — rotate the bowl and repeat 4 times per set.
+  </div>
+</div>
+```
+
   </div>
 
 </div>
@@ -451,6 +557,7 @@ function getStartTime() {
 }
 
 function addHours(d, h) { return new Date(d.getTime() + h * 3600000); }
+function addMins(d, m)  { return new Date(d.getTime() + m * 60000); }
 
 function formatTime(d) {
   var h = d.getHours(), m = d.getMinutes();
@@ -464,11 +571,42 @@ function fmtDur(h) {
   return hrs > 0 ? hrs + '\u00a0hr' + (hrs !== 1 ? 's' : '') + (mins > 0 ? ' ' + mins + '\u00a0min' : '') : mins + '\u00a0min';
 }
 
+function buildSFGrid(start) {
+  var grid = document.getElementById('sfGrid');
+  grid.innerHTML = '';
+  // 4 folds at +30, +60, +90, +120 minutes
+  var offsets = [30, 60, 90, 120];
+  var labels  = ['1st fold', '2nd fold', '3rd fold', '4th fold'];
+
+  offsets.forEach(function(mins, i) {
+    var t = addMins(start, mins);
+    var card = document.createElement('div');
+    card.className = 'sf-card';
+    card.id = 'sfCard' + i;
+    card.innerHTML =
+      '<div class="sf-num">' + (i + 1) + '</div>' +
+      '<div class="sf-info">' +
+        '<div class="sf-time">' + formatTime(t) + '</div>' +
+        '<div class="sf-sub">+' + mins + ' min &mdash; ' + labels[i] + '</div>' +
+      '</div>' +
+      '<div class="sf-check" id="sfCheck' + i + '" onclick="toggleFold(' + i + ')" title="Mark done">&#10003;</div>';
+    grid.appendChild(card);
+  });
+}
+
+function toggleFold(i) {
+  var card  = document.getElementById('sfCard' + i);
+  var check = document.getElementById('sfCheck' + i);
+  var done  = card.classList.toggle('done');
+  check.style.color = done ? 'var(--warm-white)' : 'transparent';
+}
+
 function calculate() {
   var f = getTempF();
   if (!f) { alert('Please enter a dough temperature.'); return; }
   var row = lookupTemp(f);
   var start = getStartTime();
+
   document.getElementById('timeEarly').textContent    = formatTime(addHours(start, row.minH));
   document.getElementById('timeLate').textContent     = formatTime(addHours(start, row.maxH));
   document.getElementById('durationEarly').textContent = '+' + fmtDur(row.minH) + ' from start';
@@ -477,9 +615,11 @@ function calculate() {
     ? Math.round(f) + '\u00b0F / ' + Math.round((f-32)*5/9) + '\u00b0C'
     : Math.round((f-32)*5/9) + '\u00b0C / ' + Math.round(f) + '\u00b0F';
   document.getElementById('infoRise').textContent = row.rise + '% rise';
+
   setTimeout(function() {
     document.getElementById('fmFill').style.width = Math.min(95, Math.max(5, (f-50)/40*90+5)) + '%';
   }, 300);
+
   var wb = document.getElementById('warningBox');
   if (f >= 78) {
     wb.innerHTML = '<strong>Warm dough note:</strong> At ' + Math.round(f) + '\u00b0F fermentation is fast. Check early and use the Bulk-o-Matic criteria alongside the ' + row.rise + '% rise target.';
@@ -490,6 +630,9 @@ function calculate() {
   } else {
     wb.classList.remove('visible');
   }
+
+  buildSFGrid(start);
+
   document.getElementById('resultDivider').style.display = 'block';
   var rs = document.getElementById('resultSection');
   rs.classList.remove('visible'); void rs.offsetWidth; rs.classList.add('visible');
