@@ -5,7 +5,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sourdough Bulk Fermentation Timer</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* Playfair Display — loaded from Fontsource via jsDelivr (works on GitHub Pages, no Google Fonts) */
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/index.css');
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/700.css');
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400-italic.css');
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/index.css');
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/500.css');
+</style>
 <style>
   :root {
     --cream: #f5f0e8;
@@ -105,7 +112,6 @@ gap: 12px;
 align-items: stretch;
 }
 
-input[type=“time”],
 input[type=“number”] {
 flex: 1;
 background: var(–cream);
@@ -120,6 +126,48 @@ outline: none;
 transition: border-color 0.2s, box-shadow 0.2s;
 appearance: textfield;
 -moz-appearance: textfield;
+-webkit-appearance: none;
+}
+
+/* Custom time picker — fully cross-platform */
+.time-picker {
+display: flex;
+background: var(–cream);
+border: 1px solid var(–wheat);
+border-radius: 1px;
+overflow: hidden;
+transition: border-color 0.2s, box-shadow 0.2s;
+}
+.time-picker:focus-within {
+border-color: var(–sourdough);
+box-shadow: 0 0 0 3px rgba(200,149,106,0.15);
+}
+.time-picker select {
+background: transparent;
+border: none;
+outline: none;
+font-family: ‘DM Mono’, monospace;
+font-size: 22px;
+font-weight: 400;
+color: var(–dark-crust);
+padding: 14px 6px 14px 16px;
+cursor: pointer;
+appearance: none;
+-webkit-appearance: none;
+-moz-appearance: none;
+}
+.time-picker .time-sep {
+font-family: ‘DM Mono’, monospace;
+font-size: 22px;
+color: var(–dark-crust);
+display: flex;
+align-items: center;
+}
+.time-picker .ampm-select {
+font-size: 14px !important;
+padding: 14px 14px 14px 4px !important;
+color: var(–text-light) !important;
+border-left: 1px solid var(–mellow);
 }
 
 input[type=“number”]::-webkit-inner-spin-button,
@@ -424,7 +472,15 @@ display: block;
 
   <div class="field-group">
     <label>Start time (when bulk fermentation begins)</label>
-    <input type="time" id="startTime" />
+    <div class="time-picker" id="timePicker">
+      <select id="timeHour"></select>
+      <span class="time-sep">:</span>
+      <select id="timeMin"></select>
+      <select id="timeAmPm" class="ampm-select">
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+    </div>
   </div>
 
   <!-- TEMPERATURE -->
@@ -589,15 +645,43 @@ display: block;
     document.getElementById('tempIndicator').style.left = pct + '%';
   }
 
-  document.getElementById('tempInput').addEventListener('input', updateGauge);
-
-  // Set default time to now
+  // Set default time to now using the custom picker
   window.addEventListener('DOMContentLoaded', () => {
+    // Populate hour options (1–12)
+    const hourSel = document.getElementById('timeHour');
+    for (let h = 1; h <= 12; h++) {
+      const o = document.createElement('option');
+      o.value = h; o.textContent = h;
+      hourSel.appendChild(o);
+    }
+    // Populate minute options (00, 05, 10 ... 55)
+    const minSel = document.getElementById('timeMin');
+    for (let m = 0; m < 60; m += 5) {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = String(m).padStart(2, '0');
+      minSel.appendChild(o);
+    }
+    // Default to current time
     const now = new Date();
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    document.getElementById('startTime').value = `${hh}:${mm}`;
+    let h = now.getHours();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const m = Math.round(now.getMinutes() / 5) * 5 % 60;
+    hourSel.value = h;
+    minSel.value = m;
+    document.getElementById('timeAmPm').value = ampm;
   });
+
+  function getStartTime() {
+    let h = parseInt(document.getElementById('timeHour').value);
+    const m = parseInt(document.getElementById('timeMin').value);
+    const ampm = document.getElementById('timeAmPm').value;
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    const start = new Date();
+    start.setHours(h, m, 0, 0);
+    return start;
+  }
 
   function calculate() {
     const timeVal = document.getElementById('startTime').value;
