@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sourdough Bulk Fermentation Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm-white: #faf7f2;
+    --wheat: #d4b896;
+    --crust: #8b5e3c;
+    --dark-crust: #4a2e1a;
+    --sourdough: #c8956a;
+    --mellow: #e8d5be;
+    --text: #2d1f14;
+    --text-light: #7a5c44;
+    --accent: #5c8a4a;
+    --accent-light: #7ab86a;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background-color: var(–cream);
+background-image:
+radial-gradient(ellipse at 20% 20%, rgba(200,149,106,0.12) 0%, transparent 60%),
+radial-gradient(ellipse at 80% 80%, rgba(139,94,60,0.08) 0%, transparent 50%),
+url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘400’ height=‘400’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.75’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘400’ height=‘400’ filter=‘url(%23n)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+font-family: ‘DM Mono’, monospace;
+color: var(–text);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 40px 20px 60px;
+}
+
+header {
+text-align: center;
+margin-bottom: 48px;
+animation: fadeDown 0.8s ease both;
+}
+
+.header-eyebrow {
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+font-weight: 500;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+color: var(–sourdough);
+margin-bottom: 12px;
+}
+
+h1 {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(2rem, 6vw, 3.2rem);
+font-weight: 700;
+color: var(–dark-crust);
+line-height: 1.15;
+margin-bottom: 10px;
+}
+
+h1 em {
+font-style: italic;
+color: var(–crust);
+}
+
+.subtitle {
+font-size: 12px;
+color: var(–text-light);
+letter-spacing: 0.05em;
+}
+
+.card {
+background: var(–warm-white);
+border: 1px solid var(–mellow);
+border-radius: 2px;
+padding: 36px 40px;
+width: 100%;
+max-width: 520px;
+box-shadow: 0 4px 32px rgba(74,46,26,0.08), 0 1px 4px rgba(74,46,26,0.06);
+animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.field-group {
+margin-bottom: 28px;
+}
+
+label {
+display: block;
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–text-light);
+margin-bottom: 10px;
+}
+
+.input-row {
+display: flex;
+gap: 12px;
+align-items: stretch;
+}
+
+input[type=“time”],
+input[type=“number”] {
+flex: 1;
+background: var(–cream);
+border: 1px solid var(–wheat);
+border-radius: 1px;
+padding: 14px 16px;
+font-family: ‘DM Mono’, monospace;
+font-size: 22px;
+font-weight: 400;
+color: var(–dark-crust);
+outline: none;
+transition: border-color 0.2s, box-shadow 0.2s;
+appearance: textfield;
+-moz-appearance: textfield;
+}
+
+input[type=“number”]::-webkit-inner-spin-button,
+input[type=“number”]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+input:focus {
+border-color: var(–sourdough);
+box-shadow: 0 0 0 3px rgba(200,149,106,0.15);
+}
+
+.unit-toggle {
+display: flex;
+border: 1px solid var(–wheat);
+border-radius: 1px;
+overflow: hidden;
+}
+
+.unit-btn {
+padding: 0 16px;
+background: var(–cream);
+border: none;
+font-family: ‘DM Mono’, monospace;
+font-size: 13px;
+font-weight: 500;
+letter-spacing: 0.05em;
+color: var(–text-light);
+cursor: pointer;
+transition: background 0.2s, color 0.2s;
+border-right: 1px solid var(–wheat);
+}
+
+.unit-btn:last-child { border-right: none; }
+
+.unit-btn.active {
+background: var(–crust);
+color: var(–cream);
+}
+
+.divider {
+height: 1px;
+background: var(–mellow);
+margin: 28px 0;
+}
+
+/* Temperature gauge */
+.temp-display {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-top: 12px;
+}
+
+.temp-track {
+flex: 1;
+height: 8px;
+background: linear-gradient(90deg,
+#6ba3d6 0%,
+#8ec47a 30%,
+#f0c060 55%,
+#e07a3a 75%,
+#c04030 100%
+);
+border-radius: 4px;
+position: relative;
+}
+
+.temp-indicator {
+position: absolute;
+top: 50%;
+transform: translate(-50%, -50%);
+width: 16px;
+height: 16px;
+background: var(–dark-crust);
+border: 2px solid var(–warm-white);
+border-radius: 50%;
+transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.temp-labels {
+display: flex;
+justify-content: space-between;
+margin-top: 6px;
+}
+
+.temp-label-item {
+font-size: 9px;
+color: var(–text-light);
+letter-spacing: 0.05em;
+}
+
+/* Result section */
+.result {
+display: none;
+animation: resultReveal 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+.result.visible { display: block; }
+
+.result-title {
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–text-light);
+margin-bottom: 16px;
+}
+
+.result-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.result-box {
+background: var(–cream);
+border: 1px solid var(–mellow);
+border-radius: 1px;
+padding: 18px 16px;
+text-align: center;
+}
+
+.result-box.highlight {
+background: var(–dark-crust);
+border-color: var(–dark-crust);
+}
+
+.result-box-label {
+font-size: 9px;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(–text-light);
+margin-bottom: 6px;
+}
+
+.result-box.highlight .result-box-label {
+color: var(–wheat);
+}
+
+.result-box-time {
+font-family: ‘Playfair Display’, serif;
+font-size: 28px;
+font-weight: 700;
+color: var(–dark-crust);
+line-height: 1;
+}
+
+.result-box.highlight .result-box-time {
+color: var(–cream);
+}
+
+.result-box-sub {
+font-size: 10px;
+color: var(–text-light);
+margin-top: 4px;
+}
+
+.result-box.highlight .result-box-sub {
+color: var(–wheat);
+}
+
+.info-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 0;
+border-bottom: 1px solid var(–mellow);
+font-size: 12px;
+}
+
+.info-row:last-child { border-bottom: none; }
+
+.info-key { color: var(–text-light); }
+.info-val {
+font-weight: 500;
+color: var(–dark-crust);
+}
+
+.info-val.green { color: var(–accent); }
+
+/* Warning banner */
+.warning-box {
+background: rgba(200,149,106,0.12);
+border: 1px solid rgba(200,149,106,0.4);
+border-radius: 1px;
+padding: 12px 14px;
+font-size: 11px;
+color: var(–crust);
+line-height: 1.5;
+margin-top: 16px;
+display: none;
+}
+
+.warning-box.visible { display: block; }
+
+.warning-box strong { color: var(–dark-crust); }
+
+/* Calc button */
+.calc-btn {
+width: 100%;
+padding: 16px;
+background: var(–dark-crust);
+color: var(–cream);
+border: none;
+border-radius: 1px;
+font-family: ‘DM Mono’, monospace;
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+cursor: pointer;
+transition: background 0.2s, transform 0.1s;
+margin-top: 28px;
+}
+
+.calc-btn:hover { background: var(–crust); }
+.calc-btn:active { transform: scale(0.99); }
+
+/* Fermento-meter */
+.fermento-meter {
+margin-top: 16px;
+}
+
+.fm-label {
+display: flex;
+justify-content: space-between;
+font-size: 10px;
+color: var(–text-light);
+margin-bottom: 6px;
+letter-spacing: 0.08em;
+}
+
+.fm-track {
+height: 6px;
+background: var(–mellow);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.fm-fill {
+height: 100%;
+border-radius: 3px;
+background: linear-gradient(90deg, var(–accent), var(–sourdough));
+transition: width 0.8s cubic-bezier(0.34, 1.1, 0.64, 1);
+width: 0%;
+}
+
+footer {
+margin-top: 32px;
+font-size: 10px;
+color: var(–text-light);
+text-align: center;
+letter-spacing: 0.08em;
+opacity: 0.7;
+animation: fadeUp 0.8s ease 0.4s both;
+}
+
+footer a { color: var(–sourdough); text-decoration: none; }
+
+@keyframes fadeDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes resultReveal {
+from { opacity: 0; transform: scaleY(0.92); }
+to { opacity: 1; transform: scaleY(1); }
+}
+
+/* Loaf icon */
+.loaf-icon {
+font-size: 32px;
+margin-bottom: 8px;
+display: block;
+}
+
+@media (max-width: 480px) {
+.card { padding: 28px 24px; }
+.result-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <span class="loaf-icon">🍞</span>
+  <div class="header-eyebrow">The Two-Factor Method</div>
+  <h1>Sourdough <em>Bulk</em><br>Fermentation Timer</h1>
+  <p class="subtitle">Based on The Sourdough Journey's temperature & rise method</p>
+</header>
+
+<div class="card">
+
+  <!-- START TIME -->
+
+  <div class="field-group">
+    <label>Start time (when bulk fermentation begins)</label>
+    <input type="time" id="startTime" />
+  </div>
+
+  <!-- TEMPERATURE -->
+
+  <div class="field-group">
+    <label>Dough temperature</label>
+    <div class="input-row">
+      <input type="number" id="tempInput" min="50" max="90" step="1" placeholder="76" />
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="btnF" onclick="setUnit('F')">°F</button>
+        <button class="unit-btn" id="btnC" onclick="setUnit('C')">°C</button>
+      </div>
+    </div>
+    <div class="temp-display">
+      <div style="flex:1">
+        <div class="temp-track">
+          <div class="temp-indicator" id="tempIndicator" style="left:50%"></div>
+        </div>
+        <div class="temp-labels">
+          <span class="temp-label-item">Cool</span>
+          <span class="temp-label-item">Ideal</span>
+          <span class="temp-label-item">Warm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<button class="calc-btn" onclick="calculate()">Calculate Bulk Fermentation Window →</button>
+
+  <div class="divider" id="resultDivider" style="display:none"></div>
+
+  <!-- RESULTS -->
+
+  <div class="result" id="resultSection">
+
+```
+<div class="result-title">Bulk Fermentation Window</div>
+
+<div class="result-grid">
+  <div class="result-box">
+    <div class="result-box-label">Earliest Done</div>
+    <div class="result-box-time" id="timeEarly">—</div>
+    <div class="result-box-sub" id="durationEarly">—</div>
+  </div>
+  <div class="result-box highlight">
+    <div class="result-box-label">Latest Done</div>
+    <div class="result-box-time" id="timeLate">—</div>
+    <div class="result-box-sub" id="durationLate">—</div>
+  </div>
+</div>
+
+<div class="info-row">
+  <span class="info-key">Dough temp</span>
+  <span class="info-val" id="infoTemp">—</span>
+</div>
+<div class="info-row">
+  <span class="info-key">Target % rise</span>
+  <span class="info-val green" id="infoRise">—</span>
+</div>
+<div class="info-row">
+  <span class="info-key">Method</span>
+  <span class="info-val">Dough temp + % rise</span>
+</div>
+<div class="info-row">
+  <span class="info-key">Cold retard after</span>
+  <span class="info-val">8–16 hours @ 39°F/4°C</span>
+</div>
+
+<div class="fermento-meter">
+  <div class="fm-label">
+    <span>Underproof risk</span>
+    <span>Overproof risk</span>
+  </div>
+  <div class="fm-track">
+    <div class="fm-fill" id="fmFill"></div>
+  </div>
+</div>
+
+<div class="warning-box" id="warningBox"></div>
+```
+
+  </div>
+
+</div>
+
+<footer>
+  Based on research by <a href="https://thesourdoughjourney.com" target="_blank">The Sourdough Journey</a> · Tom Cucuzza<br>
+  Times are estimates. Always measure % rise to confirm. Ignore the clock, watch the dough.
+</footer>
+
+<script>
+  // Temperature → { targetRise%, minHrs, maxHrs }
+  // Source: The Sourdough Journey Two-Factor Method chart
+  // Temps in °F
+  const BF_TABLE = [
+    { minF: 88, maxF: 92, rise: 25,  minH: 2,   maxH: 4,   label: "90°F/32°C" },
+    { minF: 83, maxF: 87, rise: 30,  minH: 3,   maxH: 5.5, label: "85°F/29°C" },
+    { minF: 78, maxF: 82, rise: 30,  minH: 3,   maxH: 5.5, label: "80°F/27°C" },
+    { minF: 73, maxF: 77, rise: 50,  minH: 5,   maxH: 7,   label: "75°F/24°C" },
+    { minF: 68, maxF: 72, rise: 75,  minH: 8,   maxH: 12,  label: "70°F/21°C" },
+    { minF: 63, maxF: 67, rise: 100, minH: 10,  maxH: 14,  label: "65°F/18°C" },
+    { minF: 58, maxF: 62, rise: 110, minH: 14,  maxH: 20,  label: "60°F/16°C" },
+    { minF: 50, maxF: 57, rise: 120, minH: 18,  maxH: 28,  label: "55°F/13°C" },
+  ];
+
+  let unit = 'F';
+
+  function setUnit(u) {
+    unit = u;
+    document.getElementById('btnF').classList.toggle('active', u === 'F');
+    document.getElementById('btnC').classList.toggle('active', u === 'C');
+    const input = document.getElementById('tempInput');
+    const val = parseFloat(input.value);
+    if (!isNaN(val)) {
+      if (u === 'C') {
+        input.value = Math.round((val - 32) * 5 / 9);
+        input.min = 10; input.max = 32; input.placeholder = '22';
+      } else {
+        input.value = Math.round(val * 9 / 5 + 32);
+        input.min = 50; input.max = 90; input.placeholder = '76';
+      }
+    } else {
+      input.placeholder = u === 'F' ? '76' : '22';
+      input.min = u === 'F' ? 50 : 10;
+      input.max = u === 'F' ? 90 : 32;
+    }
+    updateGauge();
+  }
+
+  function getTempF() {
+    const val = parseFloat(document.getElementById('tempInput').value);
+    if (isNaN(val)) return null;
+    return unit === 'C' ? val * 9 / 5 + 32 : val;
+  }
+
+  function lookupTemp(tempF) {
+    for (const row of BF_TABLE) {
+      if (tempF >= row.minF && tempF <= row.maxF) return row;
+    }
+    // Clamp
+    if (tempF < 50) return BF_TABLE[BF_TABLE.length - 1];
+    if (tempF > 92) return BF_TABLE[0];
+    return null;
+  }
+
+  function formatTime(date) {
+    let h = date.getHours(), m = date.getMinutes();
+    const ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
+    return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+
+  function addHours(date, hours) {
+    return new Date(date.getTime() + hours * 3600000);
+  }
+
+  function updateGauge() {
+    const tempF = getTempF();
+    if (!tempF) return;
+    // Range: 50°F (0%) → 90°F (100%)
+    const pct = Math.min(100, Math.max(0, (tempF - 50) / 40 * 100));
+    document.getElementById('tempIndicator').style.left = pct + '%';
+  }
+
+  document.getElementById('tempInput').addEventListener('input', updateGauge);
+
+  // Set default time to now
+  window.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('startTime').value = `${hh}:${mm}`;
+  });
+
+  function calculate() {
+    const timeVal = document.getElementById('startTime').value;
+    const tempF = getTempF();
+
+    if (!timeVal) { alert('Please enter a start time.'); return; }
+    if (!tempF) { alert('Please enter a dough temperature.'); return; }
+
+    const row = lookupTemp(tempF);
+    if (!row) { alert('Temperature out of range (50–92°F / 10–33°C).'); return; }
+
+    // Build start Date
+    const [hours, mins] = timeVal.split(':').map(Number);
+    const start = new Date();
+    start.setHours(hours, mins, 0, 0);
+
+    const earlyDone = addHours(start, row.minH);
+    const lateDone  = addHours(start, row.maxH);
+
+    document.getElementById('timeEarly').textContent = formatTime(earlyDone);
+    document.getElementById('timeLate').textContent  = formatTime(lateDone);
+
+    const fmtMin = (h) => h < 1 ? `${Math.round(h*60)}min` : `${h} hr${h !== 1 ? 's' : ''}`;
+    document.getElementById('durationEarly').textContent = `+${fmtMin(row.minH)} from start`;
+    document.getElementById('durationLate').textContent  = `+${fmtMin(row.maxH)} from start`;
+
+    const displayTemp = unit === 'F'
+      ? `${Math.round(tempF)}°F / ${Math.round((tempF-32)*5/9)}°C`
+      : `${Math.round((tempF-32)*5/9)}°C / ${Math.round(tempF)}°F`;
+
+    document.getElementById('infoTemp').textContent = displayTemp;
+    document.getElementById('infoRise').textContent = `${row.rise}% rise`;
+
+    // Fermento-meter: warm (high F) = closer to overproof risk
+    // Show position on underproof ↔ overproof spectrum based on temp
+    const riskPct = Math.min(95, Math.max(5, (tempF - 50) / 40 * 90 + 5));
+    setTimeout(() => {
+      document.getElementById('fmFill').style.width = riskPct + '%';
+    }, 300);
+
+    // Warning messages
+    const wBox = document.getElementById('warningBox');
+    if (tempF >= 78) {
+      wBox.innerHTML = `<strong>Warm dough note:</strong> At ${Math.round(tempF)}°F, fermentation is fast. Start checking early and use the Bulk-o-Matic criteria (jiggle test, dough strength, bubbles) alongside the ${row.rise}% rise target.`;
+      wBox.classList.add('visible');
+    } else if (tempF <= 62) {
+      wBox.innerHTML = `<strong>Cool dough note:</strong> At ${Math.round(tempF)}°F, bulk fermentation is slow. Most fermentation happens now vs. in the fridge. Watch the ${row.rise}% rise closely — don't rush it.`;
+      wBox.classList.add('visible');
+    } else {
+      wBox.classList.remove('visible');
+    }
+
+    // Show result
+    document.getElementById('resultDivider').style.display = 'block';
+    const rs = document.getElementById('resultSection');
+    rs.classList.remove('visible');
+    void rs.offsetWidth; // reflow
+    rs.classList.add('visible');
+  }
+</script>
+
+</body>
+</html>
