@@ -1,643 +1,589 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sourdough Bulk Fermentation Timer</title>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/700.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400-italic.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/400.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/500.css">
 
 <style>
 :root {
-  --cream: #f5f0e8;
-  --warm-white: #faf7f2;
-  --wheat: #d4b896;
+  --cream: var(--color-background-tertiary);
+  --warm-white: var(--color-background-primary);
+  --wheat: var(--color-border-secondary);
   --crust: #8b5e3c;
   --dark-crust: #4a2e1a;
   --sourdough: #c8956a;
-  --mellow: #e8d5be;
-  --text: #2d1f14;
-  --text-light: #7a5c44;
+  --mellow: var(--color-border-tertiary);
+  --text: var(--color-text-primary);
+  --text-light: var(--color-text-secondary);
   --accent: #5c8a4a;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background-color: var(--cream);
-  background-image:
-    radial-gradient(ellipse at 20% 20%, rgba(200,149,106,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(139,94,60,0.08) 0%, transparent 50%);
-  font-family: 'DM Mono', 'Courier New', monospace;
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px 60px;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 48px;
-  animation: fadeDown 0.8s ease both;
-}
-.loaf-icon { font-size: 36px; display: block; margin-bottom: 10px; }
-.header-eyebrow {
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--sourdough);
-  margin-bottom: 14px;
-}
-h1 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(2rem, 6vw, 3.2rem);
-  font-weight: 700;
-  color: var(--dark-crust);
-  line-height: 1.15;
-  margin-bottom: 10px;
-}
-h1 em { font-style: italic; color: var(--crust); }
-.subtitle { font-size: 12px; color: var(--text-light); letter-spacing: 0.05em; line-height: 1.5; }
-
-.card {
-  background: var(--warm-white);
-  border: 1px solid var(--mellow);
-  border-radius: 3px;
-  padding: 36px 40px;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 4px 32px rgba(74,46,26,0.08), 0 1px 4px rgba(74,46,26,0.06);
-  animation: fadeUp 0.8s ease 0.2s both;
-}
-
-.field-group { margin-bottom: 28px; }
-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 10px;
-}
-
-.time-picker {
-  display: flex;
-  align-items: stretch;
-  background: var(--cream);
-  border: 1px solid var(--wheat);
-  border-radius: 2px;
-  overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.time-picker:focus-within {
-  border-color: var(--sourdough);
-  box-shadow: 0 0 0 3px rgba(200,149,106,0.18);
-}
-.time-picker select {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 26px;
-  font-weight: 400;
-  color: var(--dark-crust);
-  padding: 12px 4px 12px 18px;
-  cursor: pointer;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-.time-sep {
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 26px;
-  color: var(--dark-crust);
-  display: flex;
-  align-items: center;
-  padding: 0 2px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.ampm-select {
-  font-size: 14px !important;
-  padding: 12px 16px 12px 8px !important;
-  color: var(--text-light) !important;
-  border-left: 1px solid var(--mellow);
-  margin-left: auto;
-}
-
-.input-row { display: flex; gap: 12px; align-items: stretch; }
-input[type="number"] {
-  flex: 1;
-  background: var(--cream);
-  border: 1px solid var(--wheat);
-  border-radius: 2px;
-  padding: 12px 16px;
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 26px;
-  color: var(--dark-crust);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-input[type="number"]:focus {
-  border-color: var(--sourdough);
-  box-shadow: 0 0 0 3px rgba(200,149,106,0.18);
-}
-.unit-toggle {
-  display: flex;
-  border: 1px solid var(--wheat);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.unit-btn {
-  padding: 0 18px;
-  background: var(--cream);
-  border: none;
-  border-right: 1px solid var(--wheat);
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-light);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.unit-btn:last-child { border-right: none; }
-.unit-btn.active { background: var(--crust); color: var(--cream); }
-
-.temp-display { margin-top: 14px; }
-.temp-track {
-  height: 8px;
-  background: linear-gradient(90deg, #6ba3d6 0%, #8ec47a 30%, #f0c060 55%, #e07a3a 75%, #c04030 100%);
-  border-radius: 4px;
-  position: relative;
-}
-.temp-indicator {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 18px;
-  height: 18px;
-  background: var(--dark-crust);
-  border: 2.5px solid var(--warm-white);
-  border-radius: 50%;
-  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-.temp-labels { display: flex; justify-content: space-between; margin-top: 7px; }
-.temp-label-item { font-size: 9px; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; }
-
-.calc-btn {
-  width: 100%;
-  padding: 17px;
-  background: var(--dark-crust);
-  color: var(--cream);
-  border: none;
-  border-radius: 2px;
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  margin-top: 28px;
-}
-.calc-btn:hover { background: var(--crust); }
-.calc-btn:active { transform: scale(0.99); }
-
-.divider { height: 1px; background: var(--mellow); margin: 28px 0; }
-
-.result { display: none; }
-.result.visible {
-  display: block;
-  animation: resultReveal 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) both;
-}
-.result-title { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); margin-bottom: 16px; }
-.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.result-box { background: var(--cream); border: 1px solid var(--mellow); border-radius: 2px; padding: 18px 16px; text-align: center; }
-.result-box.highlight { background: var(--dark-crust); border-color: var(--dark-crust); }
-.result-box-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
-.result-box.highlight .result-box-label { color: var(--wheat); }
-.result-box-time { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; font-weight: 700; color: var(--dark-crust); line-height: 1; }
-.result-box.highlight .result-box-time { color: var(--cream); }
-.result-box-sub { font-size: 10px; color: var(--text-light); margin-top: 5px; }
-.result-box.highlight .result-box-sub { color: var(--wheat); }
-
-.info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--mellow); font-size: 12px; }
-.info-row:last-of-type { border-bottom: none; }
-.info-key { color: var(--text-light); }
-.info-val { font-weight: 500; color: var(--dark-crust); }
-.info-val.green { color: var(--accent); }
-
-.fermento-meter { margin-top: 20px; }
-.fm-label { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
-.fm-track { height: 6px; background: var(--mellow); border-radius: 3px; overflow: hidden; }
-.fm-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--sourdough)); transition: width 0.9s cubic-bezier(0.34, 1.1, 0.64, 1); width: 0%; }
-
-.warning-box { background: rgba(200,149,106,0.1); border: 1px solid rgba(200,149,106,0.35); border-radius: 2px; padding: 12px 14px; font-size: 11px; color: var(--crust); line-height: 1.6; margin-top: 18px; display: none; }
-.warning-box.visible { display: block; }
-.warning-box strong { color: var(--dark-crust); }
-
-/* ── Stretch & Fold section ── */
-.sf-section { margin-top: 24px; }
-.sf-title {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sf-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--mellow);
-}
-.sf-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.sf-card {
-  background: var(--cream);
-  border: 1px solid var(--mellow);
-  border-radius: 2px;
-  padding: 14px 14px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: border-color 0.2s;
-}
-.sf-card.done {
-  border-color: var(--accent);
-  opacity: 0.55;
-}
-.sf-num {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--sourdough);
-  color: var(--warm-white);
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.3s;
-}
-.sf-card.done .sf-num { background: var(--accent); }
-.sf-info { flex: 1; min-width: 0; }
-.sf-time {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 19px;
-  font-weight: 700;
-  color: var(--dark-crust);
-  line-height: 1.1;
-}
-.sf-card.done .sf-time { color: var(--accent); }
-.sf-sub {
-  font-size: 9px;
-  color: var(--text-light);
-  letter-spacing: 0.05em;
-  margin-top: 2px;
-}
-.sf-check {
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid var(--wheat);
-  border-radius: 3px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.2s, border-color 0.2s;
-  font-size: 12px;
-  color: transparent;
-  background: var(--warm-white);
-  user-select: none;
-  -webkit-user-select: none;
-}
-.sf-card.done .sf-check {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--warm-white);
-}
-.sf-note {
-  font-size: 10px;
-  color: var(--text-light);
-  margin-top: 12px;
-  line-height: 1.5;
-  padding: 10px 12px;
-  background: rgba(92,138,74,0.06);
-  border-left: 2px solid var(--accent);
-  border-radius: 1px;
-}
-
-footer { margin-top: 32px; font-size: 10px; color: var(--text-light); text-align: center; letter-spacing: 0.07em; line-height: 1.7; opacity: 0.75; animation: fadeUp 0.8s ease 0.4s both; }
-footer a { color: var(--sourdough); text-decoration: none; }
-
-@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeUp   { from { opacity: 0; transform: translateY(20px); }  to { opacity: 1; transform: translateY(0); } }
-@keyframes resultReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-@media (max-width: 480px) {
-  .card { padding: 28px 20px; }
-  .result-grid { grid-template-columns: 1fr; }
-  .sf-grid { grid-template-columns: 1fr; }
-  h1 { font-size: 2rem; }
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-mono,'Courier New',monospace);color:var(--text);padding:20px 16px 48px;}
+.lang-bar{display:flex;justify-content:flex-end;margin-bottom:18px;}
+.lang-toggle{display:flex;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);overflow:hidden;}
+.lang-btn{padding:7px 16px;background:transparent;border:none;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;transition:background 0.18s,color 0.18s;}
+.lang-btn.active{background:var(--crust);color:#faf7f2;}
+header{text-align:center;margin-bottom:36px;}
+.loaf-icon{font-size:32px;display:block;margin-bottom:8px;}
+.eyebrow{font-size:10px;font-weight:500;letter-spacing:0.26em;text-transform:uppercase;color:var(--sourdough);margin-bottom:12px;}
+h1{font-family:var(--font-serif,Georgia,serif);font-size:clamp(1.7rem,5vw,2.8rem);font-weight:700;color:var(--dark-crust);line-height:1.15;margin-bottom:8px;}
+h1 em{font-style:italic;color:var(--crust);}
+.subtitle{font-size:11px;color:var(--text-light);letter-spacing:0.05em;line-height:1.5;}
+.tabs{display:flex;border-bottom:1px solid var(--mellow);margin-bottom:28px;gap:0;}
+.tab-btn{flex:1;padding:11px 8px;background:transparent;border:none;border-bottom:2px solid transparent;font-family:var(--font-sans);font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);cursor:pointer;transition:color 0.18s,border-color 0.18s;}
+.tab-btn.active{color:var(--crust);border-bottom-color:var(--crust);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.card{background:var(--warm-white);border:0.5px solid var(--mellow);border-radius:var(--border-radius-lg);padding:28px 28px;width:100%;max-width:540px;margin:0 auto;}
+.field-group{margin-bottom:22px;}
+label.flabel{display:block;font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;}
+.time-picker{display:flex;align-items:stretch;background:var(--cream);border:0.5px solid var(--wheat);border-radius:var(--border-radius-md);overflow:hidden;}
+.time-picker:focus-within{border-color:var(--sourdough);box-shadow:0 0 0 3px rgba(200,149,106,0.18);}
+.time-picker select{background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:22px;color:var(--dark-crust);padding:10px 2px 10px 14px;cursor:pointer;-webkit-appearance:none;appearance:none;}
+.time-sep{font-size:22px;color:var(--dark-crust);display:flex;align-items:center;padding:0 2px;user-select:none;}
+.ampm-sel{font-size:13px !important;padding:10px 14px 10px 6px !important;color:var(--text-light) !important;border-left:0.5px solid var(--mellow);margin-left:auto;}
+.input-row{display:flex;gap:10px;align-items:stretch;}
+input[type=number]{flex:1;background:var(--cream);border:0.5px solid var(--wheat);border-radius:var(--border-radius-md);padding:10px 14px;font-family:var(--font-mono);font-size:22px;color:var(--dark-crust);outline:none;-moz-appearance:textfield;appearance:textfield;transition:border-color 0.2s;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number]:focus{border-color:var(--sourdough);box-shadow:0 0 0 3px rgba(200,149,106,0.18);}
+.unit-toggle{display:flex;border:0.5px solid var(--wheat);border-radius:var(--border-radius-md);overflow:hidden;}
+.unit-btn{padding:0 16px;background:var(--cream);border:none;border-right:0.5px solid var(--wheat);font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;transition:background 0.18s,color 0.18s;}
+.unit-btn:last-child{border-right:none;}
+.unit-btn.active{background:var(--crust);color:#faf7f2;}
+.temp-track{height:7px;background:linear-gradient(90deg,#6ba3d6 0%,#8ec47a 30%,#f0c060 55%,#e07a3a 75%,#c04030 100%);border-radius:4px;position:relative;margin-top:12px;}
+.temp-indicator{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;background:var(--dark-crust);border:2px solid var(--warm-white);border-radius:50%;transition:left 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+.temp-labels{display:flex;justify-content:space-between;margin-top:5px;}
+.temp-label-item{font-size:9px;color:var(--text-light);letter-spacing:0.06em;text-transform:uppercase;}
+.calc-btn{width:100%;padding:15px;background:var(--dark-crust);color:#faf7f2;border:none;border-radius:var(--border-radius-md);font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:background 0.18s,transform 0.1s;margin-top:22px;}
+.calc-btn:hover{background:var(--crust);}
+.calc-btn:active{transform:scale(0.99);}
+.divider{height:0.5px;background:var(--mellow);margin:24px 0;}
+.result{display:none;}.result.visible{display:block;animation:rv 0.4s ease both;}
+.result-title{font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-light);margin-bottom:14px;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.result-box{background:var(--cream);border:0.5px solid var(--mellow);border-radius:var(--border-radius-md);padding:16px 14px;text-align:center;}
+.result-box.highlight{background:var(--dark-crust);border-color:var(--dark-crust);}
+.rb-label{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);margin-bottom:5px;}
+.result-box.highlight .rb-label{color:#c8956a;}
+.rb-time{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--dark-crust);line-height:1;}
+.result-box.highlight .rb-time{color:#faf7f2;}
+.rb-sub{font-size:10px;color:var(--text-light);margin-top:4px;}
+.result-box.highlight .rb-sub{color:#c8956a;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--mellow);font-size:12px;}
+.info-row:last-of-type{border-bottom:none;}
+.info-key{color:var(--text-light);}
+.info-val{font-weight:500;color:var(--dark-crust);}
+.info-val.green{color:var(--accent);}
+.fm-label{display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;margin-top:16px;}
+.fm-track{height:5px;background:var(--mellow);border-radius:3px;overflow:hidden;}
+.fm-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--sourdough));transition:width 0.9s cubic-bezier(0.34,1.1,0.64,1);width:0%;}
+.warn-box{background:rgba(200,149,106,0.1);border:0.5px solid rgba(200,149,106,0.4);border-radius:var(--border-radius-md);padding:11px 13px;font-size:11px;color:var(--crust);line-height:1.6;margin-top:16px;display:none;}
+.warn-box.visible{display:block;}
+.warn-box strong{color:var(--dark-crust);}
+.sf-title{font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-light);margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
+.sf-title::after{content:'';flex:1;height:0.5px;background:var(--mellow);}
+.sf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sf-card{background:var(--cream);border:0.5px solid var(--mellow);border-radius:var(--border-radius-md);padding:12px;display:flex;align-items:center;gap:10px;transition:border-color 0.2s;}
+.sf-card.done{border-color:var(--accent);opacity:0.55;}
+.sf-num{width:26px;height:26px;border-radius:50%;background:var(--sourdough);color:#faf7f2;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.3s;}
+.sf-card.done .sf-num{background:var(--accent);}
+.sf-time{font-family:var(--font-serif);font-size:17px;font-weight:700;color:var(--dark-crust);line-height:1.1;}
+.sf-card.done .sf-time{color:var(--accent);}
+.sf-sub{font-size:9px;color:var(--text-light);margin-top:1px;}
+.sf-check{width:18px;height:18px;border:1px solid var(--wheat);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;background:var(--warm-white);user-select:none;transition:background 0.2s,border-color 0.2s;}
+.sf-card.done .sf-check{background:var(--accent);border-color:var(--accent);color:#faf7f2;}
+.sf-note{font-size:10px;color:var(--text-light);margin-top:10px;line-height:1.5;padding:9px 11px;background:rgba(92,138,74,0.06);border-left:2px solid var(--accent);border-radius:1px;}
+.hydr-result{display:none;margin-top:18px;animation:rv 0.4s ease both;}
+.hydr-result.visible{display:block;}
+.big-pct{font-family:var(--font-serif);font-size:48px;font-weight:700;color:var(--dark-crust);text-align:center;line-height:1;}
+.hydration-tag{text-align:center;font-size:12px;color:var(--text-light);margin-top:6px;letter-spacing:0.08em;}
+.hydration-bar{height:10px;background:var(--mellow);border-radius:5px;overflow:hidden;margin-top:12px;}
+.hydration-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#5c8a4a,#c8956a,#8b5e3c);transition:width 0.7s ease;}
+.hyd-scale{display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);margin-top:4px;}
+.starter-gauge{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
+.sg-item{background:var(--cream);border:0.5px solid var(--mellow);border-radius:var(--border-radius-md);padding:12px 10px;text-align:center;}
+.sg-item.good{border-color:var(--accent);}
+.sg-item.warn{border-color:#c8956a;}
+.sg-item.bad{border-color:#c04030;}
+.sg-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 6px;background:var(--mellow);}
+.sg-item.good .sg-dot{background:var(--accent);}
+.sg-item.warn .sg-dot{background:#c8956a;}
+.sg-item.bad .sg-dot{background:#c04030;}
+.sg-label{font-size:10px;color:var(--text-light);letter-spacing:0.06em;}
+.sg-val{font-size:12px;font-weight:500;color:var(--dark-crust);margin-top:2px;}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.score-card{background:var(--cream);border:0.5px solid var(--mellow);border-radius:var(--border-radius-md);padding:14px;}
+.score-name{font-size:12px;font-weight:500;color:var(--dark-crust);margin-bottom:4px;}
+.score-desc{font-size:10px;color:var(--text-light);line-height:1.5;}
+.score-card .score-emoji{font-size:22px;margin-bottom:8px;display:block;}
+footer{max-width:540px;margin:28px auto 0;font-size:10px;color:var(--text-light);text-align:center;letter-spacing:0.06em;line-height:1.7;opacity:0.75;}
+footer a{color:var(--sourdough);text-decoration:none;}
+@keyframes rv{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:480px){.result-grid{grid-template-columns:1fr;}.sf-grid{grid-template-columns:1fr;}.score-grid{grid-template-columns:1fr;}.starter-gauge{grid-template-columns:1fr 1fr;}}
 </style>
 
-</head>
-<body>
+<div class="lang-bar">
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+  </div>
+</div>
 
 <header>
   <span class="loaf-icon">🍞</span>
-  <div class="header-eyebrow">The Two-Factor Method</div>
-  <h1>Sourdough <em>Bulk</em><br>Fermentation Timer</h1>
-  <p class="subtitle">Based on The Sourdough Journey's temperature &amp; rise method</p>
+  <div class="eyebrow" id="lEyebrow">The Two-Factor Method</div>
+  <h1 id="lTitle">Sourdough <em>Bulk</em><br>Fermentation Timer</h1>
+  <p class="subtitle" id="lSubtitle">Based on The Sourdough Journey's temperature & rise method</p>
 </header>
 
-<div class="card">
+<div style="max-width:540px;margin:0 auto;">
+<div class="tabs">
+  <button class="tab-btn active" id="tab0" onclick="switchTab(0)" id="lTab0">⏱ Timer</button>
+  <button class="tab-btn" id="tab1" onclick="switchTab(1)">💧 <span id="lTabHyd">Hydration</span></button>
+  <button class="tab-btn" id="tab2" onclick="switchTab(2)">🌱 <span id="lTabStarter">Starter</span></button>
+  <button class="tab-btn" id="tab3" onclick="switchTab(3)">🔪 <span id="lTabScore">Scoring</span></button>
+</div>
 
+<!-- TAB 0: Timer -->
+<div class="tab-panel active" id="panel0">
+<div class="card">
   <div class="field-group">
-    <label>Start time — when bulk fermentation begins</label>
+    <label class="flabel" id="lStartLabel">Start time — when bulk fermentation begins</label>
     <div class="time-picker">
       <select id="timeHour" aria-label="Hour"></select>
       <span class="time-sep">:</span>
       <select id="timeMin" aria-label="Minute"></select>
-      <select id="timeAmPm" class="ampm-select" aria-label="AM or PM">
-        <option value="AM">AM</option>
-        <option value="PM">PM</option>
-      </select>
+      <select id="timeAmPm" class="ampm-sel"><option value="AM">AM</option><option value="PM">PM</option></select>
     </div>
   </div>
-
   <div class="field-group">
-    <label>Dough temperature</label>
+    <label class="flabel" id="lTempLabel">Dough temperature</label>
     <div class="input-row">
-      <input type="number" id="tempInput" min="50" max="90" step="1" placeholder="76" />
+      <input type="number" id="tempInput" min="50" max="90" step="1" placeholder="76"/>
       <div class="unit-toggle">
-        <button class="unit-btn active" id="btnF" onclick="setUnit('F')">&#176;F</button>
-        <button class="unit-btn" id="btnC" onclick="setUnit('C')">&#176;C</button>
+        <button class="unit-btn active" id="btnF" onclick="setUnit('F')">°F</button>
+        <button class="unit-btn" id="btnC" onclick="setUnit('C')">°C</button>
       </div>
     </div>
-    <div class="temp-display">
-      <div class="temp-track">
-        <div class="temp-indicator" id="tempIndicator" style="left:50%"></div>
-      </div>
-      <div class="temp-labels">
-        <span class="temp-label-item">Cool</span>
-        <span class="temp-label-item">Ideal</span>
-        <span class="temp-label-item">Warm</span>
-      </div>
+    <div class="temp-track"><div class="temp-indicator" id="tempIndicator" style="left:50%"></div></div>
+    <div class="temp-labels">
+      <span class="temp-label-item" id="lTempCool">Cool</span>
+      <span class="temp-label-item" id="lTempIdeal">Ideal</span>
+      <span class="temp-label-item" id="lTempWarm">Warm</span>
     </div>
   </div>
-
-<button class="calc-btn" onclick="calculate()">Calculate Bulk Fermentation Window →</button>
-
+  <button class="calc-btn" id="lCalcBtn" onclick="calculate()">Calculate Bulk Fermentation Window →</button>
   <div class="divider" id="resultDivider" style="display:none"></div>
-
   <div class="result" id="resultSection">
-    <div class="result-title">Bulk Fermentation Window</div>
+    <div class="result-title" id="lResTitle">Bulk Fermentation Window</div>
     <div class="result-grid">
-      <div class="result-box">
-        <div class="result-box-label">Earliest Done</div>
-        <div class="result-box-time" id="timeEarly">&#8212;</div>
-        <div class="result-box-sub" id="durationEarly">&#8212;</div>
-      </div>
-      <div class="result-box highlight">
-        <div class="result-box-label">Latest Done</div>
-        <div class="result-box-time" id="timeLate">&#8212;</div>
-        <div class="result-box-sub" id="durationLate">&#8212;</div>
-      </div>
+      <div class="result-box"><div class="rb-label" id="lEarlyLabel">Earliest Done</div><div class="rb-time" id="timeEarly">—</div><div class="rb-sub" id="durationEarly">—</div></div>
+      <div class="result-box highlight"><div class="rb-label" id="lLateLabel">Latest Done</div><div class="rb-time" id="timeLate">—</div><div class="rb-sub" id="durationLate">—</div></div>
     </div>
-    <div class="info-row">
-      <span class="info-key">Dough temp</span>
-      <span class="info-val" id="infoTemp">&#8212;</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Target % rise</span>
-      <span class="info-val green" id="infoRise">&#8212;</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Method</span>
-      <span class="info-val">Dough temp + % rise</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Cold retard after</span>
-      <span class="info-val">8&#8211;16 hrs @ 39&#176;F / 4&#176;C</span>
-    </div>
-    <div class="fermento-meter">
-      <div class="fm-label">
-        <span>Underproof risk</span>
-        <span>Overproof risk</span>
-      </div>
-      <div class="fm-track"><div class="fm-fill" id="fmFill"></div></div>
-    </div>
-    <div class="warning-box" id="warningBox"></div>
-
-```
-<!-- ── Stretch & Fold section ── -->
-<div class="sf-section">
-  <div class="sf-title">Stretch &amp; Fold Schedule</div>
-  <div class="sf-grid" id="sfGrid">
-    <!-- populated by JS -->
-  </div>
-  <div class="sf-note">
-    Perform 4 sets of stretch &amp; folds, every 30 minutes starting 30 min after bulk begins.
-    Wet hands, grab one side of the dough, stretch up and fold over — rotate the bowl and repeat 4 times per set.
+    <div class="info-row"><span class="info-key" id="lInfoTempK">Dough temp</span><span class="info-val" id="infoTemp">—</span></div>
+    <div class="info-row"><span class="info-key" id="lInfoRiseK">Target % rise</span><span class="info-val green" id="infoRise">—</span></div>
+    <div class="info-row"><span class="info-key" id="lInfoMethodK">Method</span><span class="info-val" id="lInfoMethodV">Dough temp + % rise</span></div>
+    <div class="info-row"><span class="info-key" id="lInfoRetardK">Cold retard after</span><span class="info-val" id="lInfoRetardV">8–16 hrs @ 39°F / 4°C</span></div>
+    <div class="fm-label"><span id="lUnder">Underproof risk</span><span id="lOver">Overproof risk</span></div>
+    <div class="fm-track"><div class="fm-fill" id="fmFill"></div></div>
+    <div class="warn-box" id="warningBox"></div>
+    <div class="sf-title" id="lSFTitle">Stretch & Fold Schedule</div>
+    <div class="sf-grid" id="sfGrid"></div>
+    <div class="sf-note" id="lSFNote">Perform 4 sets of stretch & folds, every 30 minutes starting 30 min after bulk begins. Wet hands, grab one side of the dough, stretch up and fold over — rotate the bowl and repeat 4 times per set.</div>
   </div>
 </div>
-```
-
-  </div>
-
 </div>
+
+<!-- TAB 1: Hydration -->
+<div class="tab-panel" id="panel1">
+<div class="card">
+  <div class="field-group">
+    <label class="flabel" id="lFlourLabel">Flour weight (g)</label>
+    <input type="number" id="flourInput" min="100" max="5000" step="10" placeholder="500" style="width:100%;"/>
+  </div>
+  <div class="field-group">
+    <label class="flabel" id="lWaterLabel">Water weight (g)</label>
+    <input type="number" id="waterInput" min="50" max="5000" step="10" placeholder="375" style="width:100%;"/>
+  </div>
+  <div class="field-group">
+    <label class="flabel" id="lStarterLabel">Starter weight (g) <span style="font-weight:400;text-transform:none;letter-spacing:0;" id="lStarterNote">(if included)</span></label>
+    <input type="number" id="starterInput" min="0" max="500" step="5" placeholder="100" style="width:100%;"/>
+  </div>
+  <div class="field-group">
+    <label class="flabel" id="lStarterHydLabel">Starter hydration %</label>
+    <input type="number" id="starterHydInput" min="50" max="150" step="5" placeholder="100" style="width:100%;"/>
+  </div>
+  <button class="calc-btn" id="lHydBtn" onclick="calcHydration()">Calculate Hydration →</button>
+  <div class="hydr-result" id="hydrResult">
+    <div class="big-pct" id="hydrPct">—</div>
+    <div class="hydration-tag" id="hydrTag">—</div>
+    <div class="hydration-bar"><div class="hydration-fill" id="hydrFill" style="width:0%"></div></div>
+    <div class="hyd-scale"><span id="lHydLow">55% — stiff</span><span id="lHydMid">75% — classic</span><span id="lHydHigh">90%+ — slack</span></div>
+    <div style="margin-top:16px;" id="hydrBreakdown"></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 2: Starter Health -->
+<div class="tab-panel" id="panel2">
+<div class="card">
+  <div class="field-group">
+    <label class="flabel" id="lSHPeakLabel">Hours since last feed when peak activity occurred</label>
+    <input type="number" id="peakHours" min="1" max="24" step="0.5" placeholder="4" style="width:100%;"/>
+  </div>
+  <div class="field-group">
+    <label class="flabel" id="lSHRiseLabel">Peak rise (% volume increase, e.g. 100 = doubled)</label>
+    <input type="number" id="peakRise" min="10" max="400" step="10" placeholder="100" style="width:100%;"/>
+  </div>
+  <div class="field-group">
+    <label class="flabel" id="lSHSmellLabel">Smell</label>
+    <select id="smellSelect" style="width:100%;background:var(--cream);border:0.5px solid var(--wheat);border-radius:var(--border-radius-md);padding:10px 14px;font-family:var(--font-sans);font-size:14px;color:var(--dark-crust);outline:none;">
+      <option value="pleasant" id="lSmell1">Pleasant & tangy / yeasty</option>
+      <option value="mild" id="lSmell2">Mild / slightly sour</option>
+      <option value="acidic" id="lSmell3">Very acidic / acetone</option>
+      <option value="off" id="lSmell4">Off / unpleasant</option>
+    </select>
+  </div>
+  <button class="calc-btn" id="lStarterBtn" onclick="calcStarter()">Check Starter Health →</button>
+  <div class="hydr-result" id="starterResult">
+    <div class="big-pct" id="starterScore" style="font-size:36px;">—</div>
+    <div class="hydration-tag" id="starterVerdict">—</div>
+    <div class="starter-gauge" id="starterGauge"></div>
+    <div class="sf-note" id="starterAdvice" style="margin-top:14px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 3: Scoring -->
+<div class="tab-panel" id="panel3">
+<div class="card">
+  <p style="font-size:12px;color:var(--text-light);line-height:1.7;margin-bottom:4px;" id="lScoreIntro">Scoring controls how your bread opens during baking. Choose your pattern based on your loaf style.</p>
+  <div class="score-grid" id="scoreGrid"></div>
+  <div class="sf-note" style="margin-top:18px;" id="lScoreTip"></div>
+</div>
+</div>
+
+</div><!-- end max-width wrapper -->
 
 <footer>
-  Based on research by <a href="https://thesourdoughjourney.com" target="_blank">The Sourdough Journey</a> &#183; Tom Cucuzza<br>
-  Times are estimates. Always measure % rise to confirm. Ignore the clock &#8212; watch the dough.
+  <span id="lFooter">Based on research by</span> <a href="https://thesourdoughjourney.com" target="_blank">The Sourdough Journey</a> · Tom Cucuzza<br>
+  <span id="lFooter2">Times are estimates. Always measure % rise to confirm. Ignore the clock — watch the dough.</span>
 </footer>
 
 <script>
-var BF_TABLE = [
-  { minF:88, maxF:92, rise:25,  minH:2,  maxH:4   },
-  { minF:83, maxF:87, rise:30,  minH:3,  maxH:5.5 },
-  { minF:78, maxF:82, rise:30,  minH:3,  maxH:5.5 },
-  { minF:73, maxF:77, rise:50,  minH:5,  maxH:7   },
-  { minF:68, maxF:72, rise:75,  minH:8,  maxH:12  },
-  { minF:63, maxF:67, rise:100, minH:10, maxH:14  },
-  { minF:58, maxF:62, rise:110, minH:14, maxH:20  },
-  { minF:50, maxF:57, rise:120, minH:18, maxH:28  }
+var BF_TABLE=[
+  {minF:88,maxF:92,rise:25,minH:2,maxH:4},
+  {minF:83,maxF:87,rise:30,minH:3,maxH:5.5},
+  {minF:78,maxF:82,rise:30,minH:3,maxH:5.5},
+  {minF:73,maxF:77,rise:50,minH:5,maxH:7},
+  {minF:68,maxF:72,rise:75,minH:8,maxH:12},
+  {minF:63,maxF:67,rise:100,minH:10,maxH:14},
+  {minF:58,maxF:62,rise:110,minH:14,maxH:20},
+  {minF:50,maxF:57,rise:120,minH:18,maxH:28}
 ];
-var unit = 'F';
+var unit='F', lang='en';
 
-window.addEventListener('DOMContentLoaded', function() {
-  var hourSel = document.getElementById('timeHour');
-  for (var h = 1; h <= 12; h++) {
-    var o = document.createElement('option');
-    o.value = h; o.textContent = h; hourSel.appendChild(o);
+var T={
+  en:{
+    eyebrow:'The Two-Factor Method',
+    title:'Sourdough <em>Bulk</em><br>Fermentation Timer',
+    subtitle:"Based on The Sourdough Journey's temperature & rise method",
+    tabTimer:'⏱ Timer', tabHyd:'Hydration', tabStarter:'Starter', tabScore:'Scoring',
+    startLabel:'Start time — when bulk fermentation begins',
+    tempLabel:'Dough temperature',
+    tempCool:'Cool', tempIdeal:'Ideal', tempWarm:'Warm',
+    calcBtn:'Calculate Bulk Fermentation Window →',
+    resTitle:'Bulk Fermentation Window',
+    earlyLabel:'Earliest Done', lateLabel:'Latest Done',
+    fromStart:'from start',
+    infoTempK:'Dough temp', infoRiseK:'Target % rise',
+    infoMethodK:'Method', infoMethodV:'Dough temp + % rise',
+    infoRetardK:'Cold retard after', infoRetardV:'8–16 hrs @ 39°F / 4°C',
+    under:'Underproof risk', over:'Overproof risk',
+    warmNote:'<strong>Warm dough note:</strong> At {T}°F fermentation is fast. Check early and use the Bulk-o-Matic criteria alongside the {R}% rise target.',
+    coolNote:'<strong>Cool dough note:</strong> At {T}°F fermentation is slow. Watch the {R}% rise closely — don\'t rush it.',
+    sfTitle:'Stretch & Fold Schedule',
+    sfLabels:['1st fold','2nd fold','3rd fold','4th fold'],
+    sfNote:'Perform 4 sets of stretch & folds, every 30 minutes starting 30 min after bulk begins. Wet hands, grab one side of the dough, stretch up and fold over — rotate the bowl and repeat 4 times per set.',
+    flourLabel:'Flour weight (g)', waterLabel:'Water weight (g)',
+    starterLabel:'Starter weight (g)', starterNote:'(if included)',
+    starterHydLabel:'Starter hydration %',
+    hydBtn:'Calculate Hydration →',
+    hydLow:'55% — stiff', hydMid:'75% — classic', hydHigh:'90%+ — slack',
+    hydTags:['Very stiff','Stiff','Low medium','Medium','Classic','High hydration','Very high','Slack','Extremely slack'],
+    hydBreakdown:'Effective water from starter: {W}g (starter at {H}% hydration)',
+    shPeakLabel:'Hours since last feed when peak activity occurred',
+    shRiseLabel:'Peak rise (% volume increase, e.g. 100 = doubled)',
+    shSmellLabel:'Smell',
+    smell1:'Pleasant & tangy / yeasty', smell2:'Mild / slightly sour', smell3:'Very acidic / acetone', smell4:'Off / unpleasant',
+    starterBtn:'Check Starter Health →',
+    starterScores:['Struggling','Needs work','Developing','Good','Healthy','Very healthy','Peak condition'],
+    starterAdvices:[
+      'Your starter may need more regular feedings and a warmer environment. Try feeding twice daily with filtered water.',
+      'Keep feeding consistently. A 1:1:1 ratio (starter:flour:water) twice a day at 75–78°F will help.',
+      'Getting there! Maintain feeding rhythm and stable temperature for a stronger culture.',
+      'Good starter! It\'s ready to use. Consider a Aliquot jar test to confirm peak.',
+      'Healthy and active. Your starter is performing well — it\'s ready to leaven bread.',
+      'Very healthy starter. Use at or just after peak for best oven spring.',
+      'Your starter is in peak condition. Use within 1–2 hours of peak for maximum lift.'
+    ],
+    gaugeLabels:['Activity','Rise','Smell'],
+    scoreIntro:'Scoring controls how your bread opens during baking. Choose your pattern based on your loaf style.',
+    scores:[
+      {emoji:'╱',name:'Single slash',desc:'The classic. One deep cut at 30–45° angle. Great ear, good bloom. Best for batards.'},
+      {emoji:'✕',name:'Cross / square',desc:'Two perpendicular cuts. Even expansion on all sides. Good for round boules.'},
+      {emoji:'🌾',name:'Wheat stalk',desc:'Decorative and functional. Angled scores down the center. Beautiful for gifting.'},
+      {emoji:'⊕',name:'Circular',desc:'Concentric or spiral cuts around the top. Rustic look, even lift. Great for boules.'}
+    ],
+    scoreTip:'Score quickly and confidently with a very sharp blade or lame. Score cold dough straight from the fridge for the cleanest cuts. Aim for 1–2 cm depth.',
+    footer:'Based on research by', footer2:"Times are estimates. Always measure % rise to confirm. Ignore the clock — watch the dough."
+  },
+  es:{
+    eyebrow:'El Método de Dos Factores',
+    title:'Temporizador de <em>Fermentación</em><br>en Masa',
+    subtitle:'Basado en el método de temperatura y porcentaje de expansión de The Sourdough Journey',
+    tabTimer:'⏱ Temporizador', tabHyd:'Hidratación', tabStarter:'Masa Madre', tabScore:'Greñado',
+    startLabel:'Hora de inicio — cuando comienza la fermentación en masa',
+    tempLabel:'Temperatura de la masa',
+    tempCool:'Fría', tempIdeal:'Ideal', tempWarm:'Cálida',
+    calcBtn:'Calcular Ventana de Fermentación →',
+    resTitle:'Ventana de Fermentación en Masa',
+    earlyLabel:'Listo como mínimo', lateLabel:'Listo como máximo',
+    fromStart:'desde el inicio',
+    infoTempK:'Temp. de la masa', infoRiseK:'Subida objetivo',
+    infoMethodK:'Método', infoMethodV:'Temp. de masa + % subida',
+    infoRetardK:'Retardo en frío después', infoRetardV:'8–16 hrs @ 4°C',
+    under:'Riesgo de subfermentación', over:'Riesgo de sobrefermentación',
+    warmNote:'<strong>Nota masa cálida:</strong> A {T}°F la fermentación es rápida. Revisa pronto y usa los criterios Bulk-o-Matic junto con el objetivo de subida del {R}%.',
+    coolNote:'<strong>Nota masa fría:</strong> A {T}°F la fermentación es lenta. Observa de cerca la subida del {R}% — no la apresures.',
+    sfTitle:'Programa de Pliegues',
+    sfLabels:['1.er pliegue','2.o pliegue','3.er pliegue','4.o pliegue'],
+    sfNote:'Realiza 4 series de estiramientos y pliegues, cada 30 minutos a partir de los 30 min del inicio. Con las manos húmedas, toma un lado de la masa, estira hacia arriba y dobla — gira el bol y repite 4 veces por serie.',
+    flourLabel:'Peso de harina (g)', waterLabel:'Peso de agua (g)',
+    starterLabel:'Peso de la masa madre (g)', starterNote:'(si se incluye)',
+    starterHydLabel:'Hidratación de la masa madre %',
+    hydBtn:'Calcular Hidratación →',
+    hydLow:'55% — firme', hydMid:'75% — clásica', hydHigh:'90%+ — líquida',
+    hydTags:['Muy firme','Firme','Medio-baja','Media','Clásica','Alta hidratación','Muy alta','Fluida','Extremadamente fluida'],
+    hydBreakdown:'Agua efectiva de la masa madre: {W}g (masa madre al {H}% de hidratación)',
+    shPeakLabel:'Horas desde la última alimentación hasta la máxima actividad',
+    shRiseLabel:'Subida en el pico (% aumento de volumen, ej. 100 = dobló)',
+    shSmellLabel:'Aroma',
+    smell1:'Agradable y ácido / a levadura', smell2:'Suave / ligeramente ácido', smell3:'Muy ácido / acetona', smell4:'Desagradable / extraño',
+    starterBtn:'Comprobar Salud de la Masa Madre →',
+    starterScores:['Con problemas','Necesita trabajo','En desarrollo','Bien','Saludable','Muy saludable','En plena forma'],
+    starterAdvices:[
+      'Tu masa madre puede necesitar alimentaciones más frecuentes y un ambiente más cálido. Intenta alimentarla dos veces al día con agua filtrada.',
+      'Sigue alimentando de forma consistente. Una proporción 1:1:1 (madre:harina:agua) dos veces al día a 24–26°C ayudará.',
+      '¡Va bien! Mantén el ritmo de alimentación y temperatura estable para un cultivo más fuerte.',
+      '¡Buena masa madre! Está lista para usar. Considera una prueba de frasco alícuota para confirmar el pico.',
+      'Sana y activa. Tu masa madre está funcionando bien — lista para fermentar el pan.',
+      'Masa madre muy sana. Úsala en o justo después del pico para una mejor expansión en el horno.',
+      'Tu masa madre está en su punto álgido. Úsala en 1–2 horas después del pico para máxima potencia.'
+    ],
+    gaugeLabels:['Actividad','Subida','Aroma'],
+    scoreIntro:'El greñado controla cómo se abre el pan durante el horneado. Elige el patrón según tu tipo de hogaza.',
+    scores:[
+      {emoji:'╱',name:'Corte único',desc:'El clásico. Un corte profundo a 30–45°. Gran oreja y buena apertura. Ideal para batards.'},
+      {emoji:'✕',name:'Cruz / cuadrado',desc:'Dos cortes perpendiculares. Expansión uniforme en todos los lados. Bueno para boules redondas.'},
+      {emoji:'🌾',name:'Espiga de trigo',desc:'Decorativo y funcional. Cortes angulados por el centro. Precioso para regalar.'},
+      {emoji:'⊕',name:'Circular',desc:'Cortes concéntricos o en espiral en la parte superior. Aspecto rústico, apertura uniforme. Ideal para boules.'}
+    ],
+    scoreTip:'Greña rápido y con seguridad con una cuchilla muy afilada o lame. Greña la masa fría directamente del frigorífico para los cortes más limpios. Apunta a 1–2 cm de profundidad.',
+    footer:'Basado en investigación de', footer2:'Los tiempos son estimaciones. Siempre mide el % de subida para confirmar. Ignora el reloj — observa la masa.'
   }
-  var minSel = document.getElementById('timeMin');
-  for (var m = 0; m < 60; m += 5) {
-    var o2 = document.createElement('option');
-    o2.value = m; o2.textContent = (m < 10 ? '0' : '') + m; minSel.appendChild(o2);
+};
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.getElementById('btnES').classList.toggle('active',l==='es');
+  var t=T[l];
+  document.getElementById('lEyebrow').textContent=t.eyebrow;
+  document.getElementById('lTitle').innerHTML=t.title;
+  document.getElementById('lSubtitle').textContent=t.subtitle;
+  document.getElementById('tab0').innerHTML=t.tabTimer;
+  document.getElementById('lTabHyd').textContent=t.tabHyd;
+  document.getElementById('lTabStarter').textContent=t.tabStarter;
+  document.getElementById('lTabScore').textContent=t.tabScore;
+  document.getElementById('lStartLabel').textContent=t.startLabel;
+  document.getElementById('lTempLabel').textContent=t.tempLabel;
+  document.getElementById('lTempCool').textContent=t.tempCool;
+  document.getElementById('lTempIdeal').textContent=t.tempIdeal;
+  document.getElementById('lTempWarm').textContent=t.tempWarm;
+  document.getElementById('lCalcBtn').textContent=t.calcBtn;
+  document.getElementById('lResTitle').textContent=t.resTitle;
+  document.getElementById('lEarlyLabel').textContent=t.earlyLabel;
+  document.getElementById('lLateLabel').textContent=t.lateLabel;
+  document.getElementById('lInfoTempK').textContent=t.infoTempK;
+  document.getElementById('lInfoRiseK').textContent=t.infoRiseK;
+  document.getElementById('lInfoMethodK').textContent=t.infoMethodK;
+  document.getElementById('lInfoMethodV').textContent=t.infoMethodV;
+  document.getElementById('lInfoRetardK').textContent=t.infoRetardK;
+  document.getElementById('lInfoRetardV').textContent=t.infoRetardV;
+  document.getElementById('lUnder').textContent=t.under;
+  document.getElementById('lOver').textContent=t.over;
+  document.getElementById('lSFTitle').textContent=t.sfTitle;
+  document.getElementById('lSFNote').textContent=t.sfNote;
+  document.getElementById('lFlourLabel').textContent=t.flourLabel;
+  document.getElementById('lWaterLabel').textContent=t.waterLabel;
+  document.getElementById('lStarterLabel').firstChild.textContent=t.starterLabel+' ';
+  document.getElementById('lStarterNote').textContent=t.starterNote;
+  document.getElementById('lStarterHydLabel').textContent=t.starterHydLabel;
+  document.getElementById('lHydBtn').textContent=t.hydBtn;
+  document.getElementById('lHydLow').textContent=t.hydLow;
+  document.getElementById('lHydMid').textContent=t.hydMid;
+  document.getElementById('lHydHigh').textContent=t.hydHigh;
+  document.getElementById('lSHPeakLabel').textContent=t.shPeakLabel;
+  document.getElementById('lSHRiseLabel').textContent=t.shRiseLabel;
+  document.getElementById('lSHSmellLabel').textContent=t.shSmellLabel;
+  var opts=['lSmell1','lSmell2','lSmell3','lSmell4'];
+  ['smell1','smell2','smell3','smell4'].forEach(function(k,i){document.getElementById(opts[i]).textContent=t[k];});
+  document.getElementById('lStarterBtn').textContent=t.starterBtn;
+  document.getElementById('lScoreIntro').textContent=t.scoreIntro;
+  document.getElementById('lScoreTip').textContent=t.scoreTip;
+  document.getElementById('lFooter').textContent=t.footer;
+  document.getElementById('lFooter2').textContent=t.footer2;
+  buildScoreGrid();
+  var sfg=document.getElementById('sfGrid');
+  if(sfg.children.length>0) rebuildSF();
+}
+
+function switchTab(i){
+  for(var j=0;j<4;j++){
+    document.getElementById('tab'+j).classList.toggle('active',j===i);
+    document.getElementById('panel'+j).classList.toggle('active',j===i);
   }
-  var now = new Date();
-  var ch = now.getHours();
-  var ap = ch >= 12 ? 'PM' : 'AM';
-  ch = ch % 12 || 12;
-  var cm = Math.round(now.getMinutes() / 5) * 5 % 60;
-  hourSel.value = ch; minSel.value = cm;
-  document.getElementById('timeAmPm').value = ap;
-  document.getElementById('tempInput').addEventListener('input', updateGauge);
+}
+
+window.addEventListener('DOMContentLoaded',function(){
+  var hs=document.getElementById('timeHour');
+  for(var h=1;h<=12;h++){var o=document.createElement('option');o.value=h;o.textContent=h;hs.appendChild(o);}
+  var ms=document.getElementById('timeMin');
+  for(var m=0;m<60;m+=5){var o2=document.createElement('option');o2.value=m;o2.textContent=(m<10?'0':'')+m;ms.appendChild(o2);}
+  var now=new Date();
+  var ch=now.getHours();var ap=ch>=12?'PM':'AM';ch=ch%12||12;
+  var cm=Math.round(now.getMinutes()/5)*5%60;
+  hs.value=ch;ms.value=cm;document.getElementById('timeAmPm').value=ap;
+  document.getElementById('tempInput').addEventListener('input',updateGauge);
+  buildScoreGrid();
 });
 
-function setUnit(u) {
-  unit = u;
-  document.getElementById('btnF').classList.toggle('active', u === 'F');
-  document.getElementById('btnC').classList.toggle('active', u === 'C');
-  var inp = document.getElementById('tempInput');
-  var v = parseFloat(inp.value);
-  if (!isNaN(v)) {
-    inp.value = u === 'C' ? Math.round((v-32)*5/9) : Math.round(v*9/5+32);
-  }
-  inp.placeholder = u === 'F' ? '76' : '22';
-  inp.min = u === 'F' ? 50 : 10;
-  inp.max = u === 'F' ? 90 : 32;
+function setUnit(u){
+  unit=u;
+  document.getElementById('btnF').classList.toggle('active',u==='F');
+  document.getElementById('btnC').classList.toggle('active',u==='C');
+  var inp=document.getElementById('tempInput');
+  var v=parseFloat(inp.value);
+  if(!isNaN(v)){inp.value=u==='C'?Math.round((v-32)*5/9):Math.round(v*9/5+32);}
+  inp.placeholder=u==='F'?'76':'22';
+  inp.min=u==='F'?50:10;inp.max=u==='F'?90:32;
   updateGauge();
 }
+function getTempF(){var v=parseFloat(document.getElementById('tempInput').value);if(isNaN(v))return null;return unit==='C'?v*9/5+32:v;}
+function lookupTemp(f){for(var i=0;i<BF_TABLE.length;i++){if(f>=BF_TABLE[i].minF&&f<=BF_TABLE[i].maxF)return BF_TABLE[i];}return f<50?BF_TABLE[BF_TABLE.length-1]:BF_TABLE[0];}
+function updateGauge(){var f=getTempF();if(!f)return;var pct=Math.min(100,Math.max(0,(f-50)/40*100));document.getElementById('tempIndicator').style.left=pct+'%';}
+function getStartTime(){var h=parseInt(document.getElementById('timeHour').value);var m=parseInt(document.getElementById('timeMin').value);var ap=document.getElementById('timeAmPm').value;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;var d=new Date();d.setHours(h,m,0,0);return d;}
+function addHours(d,h){return new Date(d.getTime()+h*3600000);}
+function addMins(d,m){return new Date(d.getTime()+m*60000);}
+function formatTime(d){var h=d.getHours(),m=d.getMinutes();var ap=h>=12?'pm':'am';h=h%12||12;return h+':'+(m<10?'0':'')+m+'\u00a0'+ap;}
+function fmtDur(h){var hrs=Math.floor(h),mins=Math.round((h-hrs)*60);return hrs>0?hrs+'\u00a0hr'+(hrs!==1?'s':'')+(mins>0?' '+mins+'\u00a0min':''):mins+'\u00a0min';}
 
-function getTempF() {
-  var v = parseFloat(document.getElementById('tempInput').value);
-  if (isNaN(v)) return null;
-  return unit === 'C' ? v * 9/5 + 32 : v;
-}
+var _lastStart=null;
+function rebuildSF(){if(_lastStart)buildSFGrid(_lastStart);}
 
-function lookupTemp(f) {
-  for (var i = 0; i < BF_TABLE.length; i++) {
-    if (f >= BF_TABLE[i].minF && f <= BF_TABLE[i].maxF) return BF_TABLE[i];
-  }
-  return f < 50 ? BF_TABLE[BF_TABLE.length-1] : BF_TABLE[0];
-}
-
-function updateGauge() {
-  var f = getTempF(); if (!f) return;
-  var pct = Math.min(100, Math.max(0, (f-50)/40*100));
-  document.getElementById('tempIndicator').style.left = pct + '%';
-}
-
-function getStartTime() {
-  var h = parseInt(document.getElementById('timeHour').value);
-  var m = parseInt(document.getElementById('timeMin').value);
-  var ap = document.getElementById('timeAmPm').value;
-  if (ap === 'PM' && h !== 12) h += 12;
-  if (ap === 'AM' && h === 12) h = 0;
-  var d = new Date(); d.setHours(h, m, 0, 0); return d;
-}
-
-function addHours(d, h) { return new Date(d.getTime() + h * 3600000); }
-function addMins(d, m)  { return new Date(d.getTime() + m * 60000); }
-
-function formatTime(d) {
-  var h = d.getHours(), m = d.getMinutes();
-  var ap = h >= 12 ? 'pm' : 'am';
-  h = h % 12 || 12;
-  return h + ':' + (m < 10 ? '0' : '') + m + '\u00a0' + ap;
-}
-
-function fmtDur(h) {
-  var hrs = Math.floor(h), mins = Math.round((h - hrs)*60);
-  return hrs > 0 ? hrs + '\u00a0hr' + (hrs !== 1 ? 's' : '') + (mins > 0 ? ' ' + mins + '\u00a0min' : '') : mins + '\u00a0min';
-}
-
-function buildSFGrid(start) {
-  var grid = document.getElementById('sfGrid');
-  grid.innerHTML = '';
-  // 4 folds at +30, +60, +90, +120 minutes
-  var offsets = [30, 60, 90, 120];
-  var labels  = ['1st fold', '2nd fold', '3rd fold', '4th fold'];
-
-  offsets.forEach(function(mins, i) {
-    var t = addMins(start, mins);
-    var card = document.createElement('div');
-    card.className = 'sf-card';
-    card.id = 'sfCard' + i;
-    card.innerHTML =
-      '<div class="sf-num">' + (i + 1) + '</div>' +
-      '<div class="sf-info">' +
-        '<div class="sf-time">' + formatTime(t) + '</div>' +
-        '<div class="sf-sub">+' + mins + ' min &mdash; ' + labels[i] + '</div>' +
-      '</div>' +
-      '<div class="sf-check" id="sfCheck' + i + '" onclick="toggleFold(' + i + ')" title="Mark done">&#10003;</div>';
+function buildSFGrid(start){
+  _lastStart=start;
+  var t=T[lang];
+  var grid=document.getElementById('sfGrid');
+  grid.innerHTML='';
+  var offsets=[30,60,90,120];
+  offsets.forEach(function(mins,i){
+    var time=addMins(start,mins);
+    var card=document.createElement('div');
+    card.className='sf-card';card.id='sfCard'+i;
+    card.innerHTML='<div class="sf-num">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="sf-time">'+formatTime(time)+'</div><div class="sf-sub">+'+mins+' min — '+t.sfLabels[i]+'</div></div><div class="sf-check" id="sfCheck'+i+'" onclick="toggleFold('+i+')" title="✓">✓</div>';
     grid.appendChild(card);
   });
 }
+function toggleFold(i){var card=document.getElementById('sfCard'+i);var done=card.classList.toggle('done');document.getElementById('sfCheck'+i).style.color=done?'var(--warm-white)':'transparent';}
 
-function toggleFold(i) {
-  var card  = document.getElementById('sfCard' + i);
-  var check = document.getElementById('sfCheck' + i);
-  var done  = card.classList.toggle('done');
-  check.style.color = done ? 'var(--warm-white)' : 'transparent';
+function calculate(){
+  var f=getTempF();if(!f){alert(lang==='en'?'Please enter a dough temperature.':'Por favor introduce la temperatura de la masa.');return;}
+  var row=lookupTemp(f);var start=getStartTime();var t=T[lang];
+  document.getElementById('timeEarly').textContent=formatTime(addHours(start,row.minH));
+  document.getElementById('timeLate').textContent=formatTime(addHours(start,row.maxH));
+  document.getElementById('durationEarly').textContent='+'+fmtDur(row.minH)+' '+t.fromStart;
+  document.getElementById('durationLate').textContent='+'+fmtDur(row.maxH)+' '+t.fromStart;
+  document.getElementById('infoTemp').textContent=unit==='F'?Math.round(f)+'°F / '+Math.round((f-32)*5/9)+'°C':Math.round((f-32)*5/9)+'°C / '+Math.round(f)+'°F';
+  document.getElementById('infoRise').textContent=row.rise+'%';
+  setTimeout(function(){document.getElementById('fmFill').style.width=Math.min(95,Math.max(5,(f-50)/40*90+5))+'%';},300);
+  var wb=document.getElementById('warningBox');
+  if(f>=78){wb.innerHTML=t.warmNote.replace('{T}',Math.round(f)).replace('{R}',row.rise);wb.classList.add('visible');}
+  else if(f<=62){wb.innerHTML=t.coolNote.replace('{T}',Math.round(f)).replace('{R}',row.rise);wb.classList.add('visible');}
+  else{wb.classList.remove('visible');}
+  buildSFGrid(start);
+  document.getElementById('resultDivider').style.display='block';
+  var rs=document.getElementById('resultSection');rs.classList.remove('visible');void rs.offsetWidth;rs.classList.add('visible');
 }
 
-function calculate() {
-  var f = getTempF();
-  if (!f) { alert('Please enter a dough temperature.'); return; }
-  var row = lookupTemp(f);
-  var start = getStartTime();
+function calcHydration(){
+  var flour=parseFloat(document.getElementById('flourInput').value)||0;
+  var water=parseFloat(document.getElementById('waterInput').value)||0;
+  var starter=parseFloat(document.getElementById('starterInput').value)||0;
+  var sh=parseFloat(document.getElementById('starterHydInput').value)||100;
+  if(!flour||!water){alert(lang==='en'?'Enter flour and water weights.':'Introduce los pesos de harina y agua.');return;}
+  var starterFlour=starter/(1+sh/100);
+  var starterWater=starter-starterFlour;
+  var totalWater=water+starterWater;
+  var totalFlour=flour+starterFlour;
+  var pct=Math.round(totalWater/totalFlour*100);
+  document.getElementById('hydrPct').textContent=pct+'%';
+  var tags=T[lang].hydTags;
+  var tagIdx=pct<60?0:pct<65?1:pct<70?2:pct<75?3:pct<80?4:pct<85?5:pct<88?6:pct<92?7:8;
+  document.getElementById('hydrTag').textContent=tags[tagIdx];
+  setTimeout(function(){document.getElementById('hydrFill').style.width=Math.min(100,Math.max(0,(pct-55)/45*100))+'%';},200);
+  var bd=T[lang].hydBreakdown.replace('{W}',Math.round(starterWater)).replace('{H}',Math.round(sh));
+  document.getElementById('hydrBreakdown').innerHTML='<div class="sf-note">'+bd+'<br>'+
+    (lang==='en'?'Total effective flour: ':'Harina efectiva total: ')+Math.round(totalFlour)+'g &nbsp;·&nbsp; '+
+    (lang==='en'?'Total effective water: ':'Agua efectiva total: ')+Math.round(totalWater)+'g</div>';
+  var hr=document.getElementById('hydrResult');hr.classList.remove('visible');void hr.offsetWidth;hr.classList.add('visible');
+}
 
-  document.getElementById('timeEarly').textContent    = formatTime(addHours(start, row.minH));
-  document.getElementById('timeLate').textContent     = formatTime(addHours(start, row.maxH));
-  document.getElementById('durationEarly').textContent = '+' + fmtDur(row.minH) + ' from start';
-  document.getElementById('durationLate').textContent  = '+' + fmtDur(row.maxH) + ' from start';
-  document.getElementById('infoTemp').textContent = unit === 'F'
-    ? Math.round(f) + '\u00b0F / ' + Math.round((f-32)*5/9) + '\u00b0C'
-    : Math.round((f-32)*5/9) + '\u00b0C / ' + Math.round(f) + '\u00b0F';
-  document.getElementById('infoRise').textContent = row.rise + '% rise';
+function calcStarter(){
+  var peak=parseFloat(document.getElementById('peakHours').value)||0;
+  var rise=parseFloat(document.getElementById('peakRise').value)||0;
+  var smell=document.getElementById('smellSelect').value;
+  if(!peak||!rise){alert(lang==='en'?'Fill in all fields.':'Completa todos los campos.');return;}
+  var t=T[lang];
+  var actScore=peak>=3&&peak<=6?2:peak>=2&&peak<3||peak>6&&peak<=8?1:0;
+  var riseScore=rise>=75?2:rise>=50?1:0;
+  var smellScore=smell==='pleasant'?2:smell==='mild'?1:smell==='acidic'?0:-1;
+  var total=actScore+riseScore+smellScore;
+  var pct=Math.max(0,Math.min(100,Math.round((total+1)/5*100)));
+  var labels=t.starterScores;
+  var verdict=total<=0?labels[0]:total===1?labels[1]:total===2?labels[2]:total===3?labels[3]:total===4?labels[4]:total===5?labels[5]:labels[6];
+  document.getElementById('starterScore').textContent=verdict;
+  document.getElementById('starterVerdict').textContent=pct+'% '+( lang==='en'?'health score':'puntuación de salud');
+  var advice=t.starterAdvices[total<=0?0:total===1?1:total===2?2:total===3?3:total===4?4:total===5?5:6];
+  document.getElementById('starterAdvice').textContent=advice;
+  var gauge=document.getElementById('starterGauge');gauge.innerHTML='';
+  var items=[
+    {label:t.gaugeLabels[0],val:actScore===2?(lang==='en'?'Great':'Excelente'):actScore===1?(lang==='en'?'OK':'Regular'):(lang==='en'?'Slow':'Lento'),cls:actScore===2?'good':actScore===1?'warn':'bad'},
+    {label:t.gaugeLabels[1],val:riseScore===2?(lang==='en'?'Strong':'Fuerte'):riseScore===1?(lang==='en'?'Moderate':'Moderada'):(lang==='en'?'Weak':'Débil'),cls:riseScore===2?'good':riseScore===1?'warn':'bad'},
+    {label:t.gaugeLabels[2],val:smellScore===2?(lang==='en'?'Great':'Excelente'):smellScore===1?(lang==='en'?'OK':'Aceptable'):smellScore===0?(lang==='en'?'Acidic':'Ácido'):(lang==='en'?'Off':'Malo'),cls:smellScore>=1?'good':smellScore===0?'warn':'bad'}
+  ];
+  items.forEach(function(it){
+    var d=document.createElement('div');d.className='sg-item '+it.cls;
+    d.innerHTML='<div class="sg-dot"></div><div class="sg-label">'+it.label+'</div><div class="sg-val">'+it.val+'</div>';
+    gauge.appendChild(d);
+  });
+  var sr=document.getElementById('starterResult');sr.classList.remove('visible');void sr.offsetWidth;sr.classList.add('visible');
+}
 
-  setTimeout(function() {
-    document.getElementById('fmFill').style.width = Math.min(95, Math.max(5, (f-50)/40*90+5)) + '%';
-  }, 300);
-
-  var wb = document.getElementById('warningBox');
-  if (f >= 78) {
-    wb.innerHTML = '<strong>Warm dough note:</strong> At ' + Math.round(f) + '\u00b0F fermentation is fast. Check early and use the Bulk-o-Matic criteria alongside the ' + row.rise + '% rise target.';
-    wb.classList.add('visible');
-  } else if (f <= 62) {
-    wb.innerHTML = '<strong>Cool dough note:</strong> At ' + Math.round(f) + '\u00b0F fermentation is slow. Watch the ' + row.rise + '% rise closely \u2014 don\u2019t rush it.';
-    wb.classList.add('visible');
-  } else {
-    wb.classList.remove('visible');
-  }
-
-  buildSFGrid(start);
-
-  document.getElementById('resultDivider').style.display = 'block';
-  var rs = document.getElementById('resultSection');
-  rs.classList.remove('visible'); void rs.offsetWidth; rs.classList.add('visible');
+function buildScoreGrid(){
+  var t=T[lang];
+  var grid=document.getElementById('scoreGrid');
+  grid.innerHTML='';
+  t.scores.forEach(function(s){
+    var d=document.createElement('div');d.className='score-card';
+    d.innerHTML='<span class="score-emoji">'+s.emoji+'</span><div class="score-name">'+s.name+'</div><div class="score-desc">'+s.desc+'</div>';
+    grid.appendChild(d);
+  });
+  document.getElementById('lScoreTip').textContent=t.scoreTip;
 }
 </script>
-
-</body>
-</html>
